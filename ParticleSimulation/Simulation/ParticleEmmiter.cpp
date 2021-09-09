@@ -9,9 +9,6 @@ int ParticleEmmiter::m_PoolSize;
 int ParticleEmmiter::m_Width;
 int ParticleEmmiter::m_Height;
 
-float ParticleEmmiter::m_Speed;
-int ParticleEmmiter::m_Size;
-
 void ParticleEmmiter::Init(const std::shared_ptr<ScreenBuffer>& buffer)
 {
 	m_Width = buffer->getWidth();
@@ -51,13 +48,13 @@ void ParticleEmmiter::Update(float deltaTime)
 				case ParticleType::Sand:
 					Renderer::setPixel({ (float)x, (float)y }, 0xffff00);
 					if (canUpdate)
-						SandUpdate(x, y, deltaTime);
+						SandUpdate(x, y);
 					break;
 
 				case ParticleType::Water:
 					Renderer::setPixel({ (float)x, (float)y }, 0x0000ff);
 						if (canUpdate)
-					WaterUpdate(x, y, deltaTime);
+					WaterUpdate(x, y);
 					break;
 
 				case ParticleType::Wood:
@@ -85,20 +82,12 @@ void ParticleEmmiter::moveCell(int srcx, int srcy, int destx, int desty)
 	}
 }
 
-void ParticleEmmiter::swapCells(int lx, int ly, int rx, int ry)
-{
-	auto type = getType(lx, ly);
-	getCell(lx, ly) = getType(rx, ry);
-	getCell(rx, ry) = type;
-
-}
-
 ParticleType& ParticleEmmiter::getCell(int x, int y)
 {
 	return m_ParticleOutput[y * m_Width + x];
 }
 
-void ParticleEmmiter::SandUpdate(int x, int y, float deltaTime)
+void ParticleEmmiter::SandUpdate(int x, int y)
 {
 	if (x > 0 && x < m_Width - 1 && y > 0 && y < m_Height)
 	{
@@ -113,7 +102,7 @@ void ParticleEmmiter::SandUpdate(int x, int y, float deltaTime)
 	}
 }
 
-void ParticleEmmiter::WaterUpdate(int x, int y, float deltaTime)
+void ParticleEmmiter::WaterUpdate(int x, int y)
 {
 	if (x > 0 && x < m_Width - 1 && y > 0 && y < m_Height)
 	{
@@ -144,8 +133,4 @@ void ParticleEmmiter::WaterUpdate(int x, int y, float deltaTime)
 			moveCell(x, y, x + 1, y);
 		else moveCell(x, y, x - 1, y);
 	}
-}
-
-void ParticleEmmiter::WoodUpdate(int x, int y, float deltaTime)
-{
 }
