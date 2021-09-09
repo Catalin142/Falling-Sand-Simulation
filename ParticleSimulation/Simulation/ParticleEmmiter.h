@@ -1,8 +1,15 @@
 #pragma once
 #include <vector>
 
-#include "Particle.h"
 #include "../Engine/System/ScreenBuffer.h"
+
+enum class ParticleType : int
+{
+	None,
+	Water,
+	Sand,
+	Wood,
+};
 
 struct ParticleMovement
 {
