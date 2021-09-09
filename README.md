@@ -8,3 +8,4 @@ Bare bones particle simulation made in C++
 
 # Screenshots
 ![GIF](Screenshots/nice.gif)
+![SS](Screenshots/ss.png)
