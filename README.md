@@ -7,5 +7,5 @@ Bare bones particle simulation made in C++
 - W: pause the simulation
 
 # Screenshots
-![GIF](Screenshots/nice.gif)
-![SS](Screenshots/ss.png)
+![GIF](Screenshots/cool.gif)
+![SS](Screenshots/tare.png)
