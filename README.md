@@ -1,5 +1,5 @@
 # ParticleSimulation
-Bare bones particle simulation made in C++
+Simple implementation of Noita (sort-of) particle simulation
 
 # Controls
 - Left-click: place particle
