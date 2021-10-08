@@ -144,7 +144,8 @@ void ParticleEmmiter::SandUpdate(int x, int y)
 
 	else if (getType(x, y - 1) == ParticleType::Lava)
 	{
-		getCell(x, y).Type = ParticleType::Smoke;
+		if (Random::Float() > 0.5f)
+			getCell(x, y).Type = ParticleType::Smoke;
 
 		if (Random::Float() > 0.6f)
 			getCell(x, y - 1).Type = ParticleType::None;
@@ -193,6 +194,7 @@ void ParticleEmmiter::WaterUpdate(int x, int y)
 
 	else if (getType(x, y - 1) == ParticleType::Lava)
 	{
+		if (Random::Float() > 0.5f)
 		getCell(x, y).Type = ParticleType::Smoke;
 
 		if(Random::Float() > 0.6f)
@@ -256,7 +258,8 @@ void ParticleEmmiter::LavaUpdate(int x, int y)
 
 	else if (getType(x, y - 1) == ParticleType::Water)
 	{
-		getCell(x, y).Type = ParticleType::Smoke;
+		if (Random::Float() > 0.5f)
+			getCell(x, y).Type = ParticleType::Smoke;
 		getCell(x, y - 1).Type = ParticleType::Rock;
 	}
 
