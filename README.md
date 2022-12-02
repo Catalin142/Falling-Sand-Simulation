@@ -1,10 +1,8 @@
-# ParticleSimulation
-Simple implementation of Noita (sort-of) particle simulation
+# Falling Sand Simulation
+Simple implementation of Noita (sort-of) sand simulation
 
 # Controls
 - Left-click: place particle
-- Space: change particle type
-- W: pause the simulation
 
 # Screenshots
 ![GIF](Screenshots/cool.gif)
