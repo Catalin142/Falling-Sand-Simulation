@@ -5,5 +5,4 @@ Simple implementation of Noita (sort-of) sand simulation
 - Left-click: place particle
 
 # Screenshots
-![GIF](Screenshots/cool.gif)
 ![SS](Screenshots/tare.png)
