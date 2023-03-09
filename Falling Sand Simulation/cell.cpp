@@ -61,6 +61,7 @@ cell_world::cell_world(uint32_t width, uint32_t height) : grid_size(width* heigh
 width(width), height(height)
 {
 	cell_grid = new cell[grid_size];
+	timer_grid = new float[grid_size];
 
 	particle_proprities none_props;
 	none_props.color_palette = { 0xABD9FF };
@@ -127,6 +128,8 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 		for (uint32_t x = 1; x < width - 1; x++)
 		{
 			cell& c = get_cell(x, y);
+			float& timer = get_timer(x, y);
+
 			bool is_in_water = false;
 			if (get_surrounding_cell(x, y, direction::up).get_type() == cell_type::water)
 				is_in_water = true;
@@ -135,7 +138,7 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 				continue;
 
 			if (proprieties[c.get_type()].use_timer)
-				c.timer -= dt;
+				timer -= dt;
 
 			else if (proprieties[c.get_type()].is_flammable && c.is_on_fire())
 			{
@@ -145,14 +148,14 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 					continue;
 				}
 
-				c.timer -= dt;
-				if (c.timer > 0.8f)
+				timer -= dt;
+				if (timer > 0.8f)
 					put_cell(cell_type::smoke, x, y + 1);
 				if (c.get_type() != cell_type::ember)
 					change_cell_type(c, cell_type::ember);
 			}
 
-			if (c.timer <= 0.0f)
+			if (timer <= 0.0f)
 			{
 				if (c.is_on_fire())
 				{
@@ -162,7 +165,7 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 						if (proprieties[sur_cell.get_type()].is_flammable)
 						{
 							sur_cell.set_on_fire(true);
-							sur_cell.timer = get_random_float() / 2.0f;
+							get_surrounding_timer(x, y, (direction)(i)) = get_random_float() / 2.0f;
 						}
 					}
 					put_cell(cell_type::smoke, x, y + 1);
@@ -247,6 +250,7 @@ void cell_world::put_cell(cell_type type, uint32_t x, uint32_t y)
 		return;
 
 	cell& c = get_cell(x, y);
+	float& timer = get_timer(x, y);
 	if (c.get_type() != cell_type::none && type != cell_type::none)
 		return;
 
@@ -259,7 +263,7 @@ void cell_world::put_cell(cell_type type, uint32_t x, uint32_t y)
 	else
 		c.set_on_fire(false);
 
-	c.timer = proprieties[type].destroy_timer;
+	timer = proprieties[type].destroy_timer;
 }
 
 void cell_world::change_cell_type(cell& c, cell_type type)
@@ -276,8 +280,8 @@ void cell_world::swap_cells(uint32_t lhs_x, uint32_t lhs_y, uint32_t rhs_x, uint
 	left_spec = right_spec;
 	right_spec = lhs;
 
-	float& left_timer = get_cell(lhs_x, lhs_y).timer;
-	float& right_timer = get_cell(rhs_x, rhs_y).timer;
+	float& left_timer = get_timer(lhs_x, lhs_y);
+	float& right_timer = get_timer(rhs_x, rhs_y);
 	float lhs_t = left_timer;
 	left_timer = right_timer;
 	right_timer = lhs_t;

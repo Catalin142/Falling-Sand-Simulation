@@ -96,12 +96,11 @@ void sandbox::update()
 		cw->reset();
 
 	cw->update(delta_time, mouse_pos);
-	cell* cell_world_buffer = cw->cell_grid;
+
+	memcpy(ctx->memory_buffer, cw->cell_grid, cw->get_buffer_size() * sizeof(uint32_t));
+
 	for (uint32_t i = 0; i < cw->get_buffer_size(); i++)
-	{
-		*(ctx->memory_buffer + i) = (cell_world_buffer + i)->spec;
-		(cell_world_buffer + i)->spec &= 0xEFFFFFFF;
-	}
+		cw->cell_grid[i].spec &= 0xEFFFFFFF;
 
 	ctx->render();
 	wnd->poll_events();

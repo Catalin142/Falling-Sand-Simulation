@@ -68,7 +68,6 @@ public:
 	//		   - 30th bit	   = if it's on fire
 	uint32_t spec = DEFAULT_CELL;
 					// false, type = none, color = background color #ABD9FF
-	float timer = 1.0f;
 };
 
 struct particle_proprities
@@ -96,6 +95,7 @@ struct cell_world
 	~cell_world()
 	{
 		delete[] cell_grid;
+		delete[] timer_grid;
 	}
 	
 	void update(float dt, const vec2& mouse_pos);
@@ -103,6 +103,7 @@ struct cell_world
 	uint32_t get_buffer_size() { return grid_size; }
 
 	cell& get_cell(uint32_t x, uint32_t y) { return cell_grid[y * width + x]; }
+	float& get_timer(uint32_t x, uint32_t y) { return timer_grid[y * width + x]; }
 
 	void put_cell(cell_type type, uint32_t x, uint32_t y);
 	void change_cell_type(cell& c, cell_type type);
@@ -141,6 +142,22 @@ struct cell_world
 		default:					return get_cell(x, y);
 		}
 	}
+	
+	float& get_surrounding_timer(uint32_t x, uint32_t y, direction dir)
+	{
+		switch (dir)
+		{
+		case direction::down:		return get_timer(x, y - 1);
+		case direction::up:			return get_timer(x, y + 1);
+		case direction::left:		return get_timer(x - 1, y);
+		case direction::right:		return get_timer(x + 1, y);
+		case direction::down_left:	return get_timer(x - 1, y - 1);
+		case direction::down_right: return get_timer(x + 1, y - 1);
+		case direction::up_left:	return get_timer(x - 1, y + 1);
+		case direction::up_right:	return get_timer(x + 1, y + 1);
+		default:					return get_timer(x, y);
+		}
+	}
 
 	void destroy_cell(cell& c)
 	{
@@ -155,6 +172,7 @@ struct cell_world
 	}
 
 	cell* cell_grid = nullptr;
+	float* timer_grid = nullptr;
 
 	uint32_t width = 0;
 	uint32_t height = 0;
