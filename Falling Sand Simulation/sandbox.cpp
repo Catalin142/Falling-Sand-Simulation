@@ -1,5 +1,6 @@
 #include <chrono>
-
+#include <string>
+#include <thread>
 #include "sandbox.h"
 
 sandbox::sandbox(const wchar_t* name, uint32_t width, uint32_t height, uint32_t pixel_size)
@@ -26,6 +27,8 @@ sandbox::sandbox(const wchar_t* name, uint32_t width, uint32_t height, uint32_t 
 			*(buttons[c_type]->texture + index) = cw->proprieties[c_type].color_palette[get_random_int(0, pallete_size - 1)];
 		}
 	}
+
+	next_frame = std::chrono::system_clock::now();
 }
 
 sandbox::~sandbox()
@@ -73,6 +76,9 @@ void sandbox::update()
 	delta_time = std::chrono::duration<float>(now - old).count();
 	old = now;
 
+	// ~144 fps
+	next_frame += std::chrono::milliseconds(1000 / 144);
+
 	vec2 mouse_pos = wnd->get_mouse_position();
 	ctx->convert_to_context(mouse_pos);
 
@@ -100,4 +106,6 @@ void sandbox::update()
 	ctx->render();
 	wnd->poll_events();
 	is_running = !wnd->should_close;
+
+	std::this_thread::sleep_until(next_frame);
 }

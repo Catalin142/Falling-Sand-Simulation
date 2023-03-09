@@ -76,6 +76,7 @@ width(width), height(height)
 	water_props.movement = particle_movement::move_down | particle_movement::move_down_left | particle_movement::move_down_right
 		| particle_movement::move_left | particle_movement::move_right;
 	water_props.is_liquid = true;
+	water_props.dispersion_rate = 5;
 
 	particle_proprities cement_props;
 	cement_props.color_palette = { 0xB2BEB5, 0x676767, 0x555555 };
@@ -126,12 +127,13 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 		for (uint32_t x = 1; x < width - 1; x++)
 		{
 			cell& c = get_cell(x, y);
-			cell* surrounding_cells[direction::count] = {
-				// down, up, left, right, down_right, down_left, up_right, up_left
-				&get_cell(x, y - 1),     &get_cell(x, y + 1),    &get_cell(x - 1, y), &get_cell(x + 1, y),
-				&get_cell(x + 1, y - 1), &get_cell(x - 1, y - 1),
-				&get_cell(x + 1, y + 1), &get_cell(x - 1, y + 1)
-			};
+			bool is_in_water = false;
+			for (uint32_t i = 0; i < direction::count; i++)
+				if (get_surrounding_cell(x, y, (direction)i).get_type() == cell_type::water)
+				{
+					is_in_water = true;
+					break;
+				}
 
 			if (c.has_been_updated() || c.get_type() == cell_type::none)
 				continue;
@@ -141,6 +143,12 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 
 			else if (proprieties[c.get_type()].is_flammable && c.is_on_fire())
 			{
+				if (is_in_water)
+				{
+					c.set_on_fire(false);
+					continue;
+				}
+
 				c.timer -= dt;
 				if (c.timer > 0.8f)
 					put_cell(cell_type::smoke, x, y + 1);
@@ -154,10 +162,11 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 				{
 					for (uint32_t i = 0; i < direction::count; i++)
 					{
-						if (proprieties[surrounding_cells[i]->get_type()].is_flammable)
+						cell& sur_cell = get_surrounding_cell(x, y, (direction)i);
+						if (proprieties[sur_cell.get_type()].is_flammable)
 						{
-							surrounding_cells[i]->set_on_fire(true);
-							surrounding_cells[i]->timer = get_random_float() / 2.0f;
+							sur_cell.set_on_fire(true);
+							sur_cell.timer = get_random_float() / 2.0f;
 						}
 					}
 					put_cell(cell_type::smoke, x, y + 1);
@@ -171,6 +180,9 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 			if (movement & particle_movement::move_none) // is particle doesn t move
 				continue;
 			
+			uint32_t p_x = x;
+			uint32_t p_y = y;
+
 			// lambda to stop repeating code
 			auto move_particle = [&](particle_movement mvm_type, direction dir, uint32_t next_x, uint32_t next_y) -> bool
 			{
@@ -181,43 +193,54 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 				if (!check_coords(next_x, next_y))
 					return false;
 
-				bool dest_cell_empty = surrounding_cells[dir]->get_type() == cell_type::none;
+				cell& sur_cell = get_surrounding_cell(p_x, p_y, dir);
+				bool dest_cell_empty = sur_cell.get_type() == cell_type::none;
 
 				bool src_cell_goes_thought_liquid = proprieties[c.get_type()].goes_through_liquid;
-				bool dest_cell_is_liquid = proprieties[surrounding_cells[dir]->get_type()].is_liquid;
+				bool dest_cell_is_liquid = proprieties[sur_cell.get_type()].is_liquid;
 
 				bool can_swap = src_cell_goes_thought_liquid && dest_cell_is_liquid;
 				if (!dest_cell_empty && !can_swap)
 					return false;
 
-				bool dest_cell_updated = surrounding_cells[dir]->has_been_updated();
+				bool dest_cell_updated = sur_cell.has_been_updated();
 				if (dest_cell_updated)
 					return false;
 
 				c.set_updated(true);
-				swap_cells(x, y, next_x, next_y);
+				swap_cells(p_x, p_y, next_x, next_y);
+				p_x = next_x;
+				p_y = next_y;
 				return true;
 			};
 
 			int direction = get_random_int(0, 1);
 
 			// down
-			move_particle(particle_movement::move_down, direction::down, x, y - 1);
+			move_particle(particle_movement::move_down, direction::down, p_x, p_y - 1);
 
 			// up
-			move_particle(particle_movement::move_up, direction::up, x, y + 1);
+			move_particle(particle_movement::move_up, direction::up, p_x, p_y + 1);
 
 			// down left - down right
-			if (direction == 0) move_particle(particle_movement::move_down_right, direction::down_right, x + 1, y - 1);
-			else				move_particle(particle_movement::move_down_left, direction::down_left, x - 1, y - 1);
+			if (direction == 0) move_particle(particle_movement::move_down_right, direction::down_right, p_x + 1, p_y - 1);
+			else				move_particle(particle_movement::move_down_left, direction::down_left, p_x - 1, p_y - 1);
 
 			// up left - up right
-			if (direction == 0) move_particle(particle_movement::move_up_right, direction::up_right, x + 1, y + 1);
-			else				move_particle(particle_movement::move_up_left, direction::up_left, x - 1, y + 1);
+			if (direction == 0) move_particle(particle_movement::move_up_right, direction::up_right, p_x + 1, p_y + 1);
+			else				move_particle(particle_movement::move_up_left, direction::up_left, p_x - 1, p_y + 1);
 
 			// left - right
-			if (direction == 0) move_particle(particle_movement::move_right, direction::right, x + 1, y);
-			else                move_particle(particle_movement::move_left, direction::left, x - 1, y);
+			if (direction == 0)
+			{
+				uint32_t dest_x = get_first_available_cell(p_x, p_y, 1, proprieties[c.get_type()].dispersion_rate);
+				move_particle(particle_movement::move_right, direction::right, dest_x, p_y);
+			}
+			else
+			{
+				uint32_t dest_x = get_first_available_cell(p_x, p_y, -1, proprieties[c.get_type()].dispersion_rate);
+				move_particle(particle_movement::move_left, direction::left, dest_x, p_y);
+			}
 		}
 
 }

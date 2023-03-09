@@ -34,7 +34,7 @@ struct graphics_context
 		VirtualFree(memory_buffer, 0, MEM_FREE);
 	}
 
-	void clear(uint32_t hex);
+	void clear();
 	void render();
 
 	void convert_to_context(vec2& pos);

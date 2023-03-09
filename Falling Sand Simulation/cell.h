@@ -84,6 +84,9 @@ struct particle_proprities
 	float destroy_timer = 1.0f;
 	float use_timer = false;
 
+	uint32_t dispersion_rate = 0;
+	uint32_t velocity = 0;
+
 	vec2 random_velocity = { 0.0f, 0.0f };
 };
 
@@ -111,6 +114,33 @@ struct cell_world
 		if (x >= 1 && x < width - 1 && y >= 1 && y < height - 1)
 			return true;
 		return false;
+	}
+
+	uint32_t get_first_available_cell(uint32_t x, uint32_t y, uint32_t v_x, uint32_t disp_rate)
+	{
+		for (uint32_t i = 0; i < disp_rate; i++)
+		{
+			if (get_cell(x + v_x, y).get_type() == cell_type::none && check_coords(x + v_x, y))
+				x += v_x;
+			else break;
+		}
+		return x;
+	}
+
+	cell& get_surrounding_cell(uint32_t x, uint32_t y, direction dir)
+	{
+		switch (dir)
+		{
+		case direction::down:		return get_cell(x, y - 1);
+		case direction::up:			return get_cell(x, y + 1);
+		case direction::left:		return get_cell(x - 1, y);
+		case direction::right:		return get_cell(x + 1, y);
+		case direction::down_left:	return get_cell(x - 1, y - 1);
+		case direction::down_right: return get_cell(x + 1, y - 1);
+		case direction::up_left:	return get_cell(x - 1, y + 1);
+		case direction::up_right:	return get_cell(x + 1, y + 1);
+		default:					return get_cell(x, y);
+		}
 	}
 
 	void destroy_cell(cell& c)

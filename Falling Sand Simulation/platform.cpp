@@ -105,9 +105,10 @@ graphics_context::graphics_context(window* w, uint32_t ps) : pixel_size(ps), wnd
 	bm_info.bmiHeader.biCompression = BI_RGB;
 }
 
-void graphics_context::clear(uint32_t hex)
+// default white
+void graphics_context::clear()
 {
-	memset(memory_buffer, hex, buffer_size * sizeof(uint32_t));
+	memset(memory_buffer, 0xFFFFFF, buffer_size * sizeof(uint32_t));
 }
 
 void graphics_context::render()

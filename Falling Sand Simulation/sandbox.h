@@ -1,10 +1,12 @@
 #pragma once
 
 #include <unordered_map>
+#include <chrono>
 
 #include "platform.h"
 #include "cell.h"
 #include "button.h"
+
 
 struct sandbox
 {
@@ -21,4 +23,6 @@ struct sandbox
 	cell_type current_cell_type = cell_type::none;
 	std::unordered_map<cell_type, selection_button*> buttons;
 	float delta_time = 0.0f;
+
+	std::chrono::time_point<std::chrono::system_clock> next_frame;
 };
