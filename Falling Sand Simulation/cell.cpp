@@ -128,12 +128,8 @@ void cell_world::update(float dt, const vec2& mouse_pos)
 		{
 			cell& c = get_cell(x, y);
 			bool is_in_water = false;
-			for (uint32_t i = 0; i < direction::count; i++)
-				if (get_surrounding_cell(x, y, (direction)i).get_type() == cell_type::water)
-				{
-					is_in_water = true;
-					break;
-				}
+			if (get_surrounding_cell(x, y, direction::up).get_type() == cell_type::water)
+				is_in_water = true;
 
 			if (c.has_been_updated() || c.get_type() == cell_type::none)
 				continue;
@@ -285,9 +281,4 @@ void cell_world::swap_cells(uint32_t lhs_x, uint32_t lhs_y, uint32_t rhs_x, uint
 	float lhs_t = left_timer;
 	left_timer = right_timer;
 	right_timer = lhs_t;
-}
-
-cell* cell_world::get_buffer()
-{
-	return cell_grid;
 }

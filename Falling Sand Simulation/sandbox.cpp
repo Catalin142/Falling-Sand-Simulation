@@ -96,7 +96,7 @@ void sandbox::update()
 		cw->reset();
 
 	cw->update(delta_time, mouse_pos);
-	cell* cell_world_buffer = cw->get_buffer();
+	cell* cell_world_buffer = cw->cell_grid;
 	for (uint32_t i = 0; i < cw->get_buffer_size(); i++)
 	{
 		*(ctx->memory_buffer + i) = (cell_world_buffer + i)->spec;

@@ -100,7 +100,6 @@ struct cell_world
 	
 	void update(float dt, const vec2& mouse_pos);
 
-	cell* get_buffer();
 	uint32_t get_buffer_size() { return grid_size; }
 
 	cell& get_cell(uint32_t x, uint32_t y) { return cell_grid[y * width + x]; }

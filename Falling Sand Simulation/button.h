@@ -7,7 +7,7 @@
 struct selection_button
 {
 	selection_button(uint32_t pos_x, uint32_t pos_y, uint32_t w, uint32_t h) : x(pos_x), y(pos_y), 
-		width(w), height(h), texture(new uint32_t[width * height]) { }
+		width(w), height(h), texture(new uint32_t[size_t(width * height)]) { }
 
 	~selection_button()
 	{
